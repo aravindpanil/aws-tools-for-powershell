@@ -1,0 +1,64 @@
+param (
+  [Parameter()]
+  [ValidateNotNullOrEmpty()]
+  [string] $SdkVersionsFileUri,
+
+  [Parameter()]
+  [ValidateNotNullOrEmpty()]
+  [string] $RepositoryPath,
+    
+  [Parameter()]
+  [ValidateNotNullOrEmpty()]
+  [string] $BuildS3Bucket,
+    
+  [Parameter()]
+  [ValidateNotNullOrEmpty()]
+  [string] $S3Prefix,
+
+  [Parameter()]
+  [string] $Configuration = 'Release',
+
+  [Parameter()]
+  [string] $AWSPowerShellVersion = '4.0.2.0'
+)
+
+Write-Host "Building $S3Prefix"
+
+Set-Location $RepositoryPath
+
+if (-not (Get-Module -ListAvailable -Name AWS.Tools.S3 | Where-Object { $_.Version -eq $AWSPowerShellVersion })) {
+  Write-Host "Installing AWS.Tools.S3 $AWSPowerShellVersion"
+  Install-Module -Name AWS.Tools.S3 -RequiredVersion $AWSPowerShellVersion -Force
+}
+Import-Module -Name AWS.Tools.S3 -RequiredVersion $AWSPowerShellVersion
+
+Write-Host "Downloading $SdkVersionsFileUri"
+Invoke-WebRequest -Uri $SdkVersionsFileUri -OutFile ./Include/sdk/_sdk-versions.json
+
+dotnet msbuild ./buildtools/build.proj /t:preview-build /p:BreakOnNewOperations=true /p:Configuration=$Configuration
+$BuildResult = $LASTEXITCODE
+
+Write-Host "Saving new S3 artifacts in $BuildS3Bucket/$S3Prefix"
+
+try {
+  Write-S3Object -BucketName $BuildS3Bucket -Key "$S3Prefix/overrides.xml" -File ./report.xml
+}
+catch {
+  Write-Host "Error uploading ./report.xml to S3: $($_.Exception)"
+}
+
+try {
+  Write-S3Object -BucketName $BuildS3Bucket -Key "$S3Prefix/ReleaseNotesDraft.txt" -File ./ReleaseNotesDraft.txt
+}
+catch {
+  Write-Host "Error uploading ./ReleaseNotesDraft.txt to S3: $($_.Exception)"
+}
+
+if ($BuildResult -ne 0) {
+  throw "dotnet msbuild returned error $BuildResult"
+}
+else {
+  Compress-Archive -Path ./Deployment/AWSPowerShell.NetCore -DestinationPath ./AWSPowerShell.NetCore.zip
+  Write-S3Object -BucketName $BuildS3Bucket -Key "$S3Prefix/AWSPowerShell.NetCore.zip" -File ./AWSPowerShell.NetCore.zip
+}
+
