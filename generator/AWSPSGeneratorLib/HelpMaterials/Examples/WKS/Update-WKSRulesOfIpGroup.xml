@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!--Examples for the AWS PowerShell CmdLets-->
+<examples>
+  <example>
+    <code>$ruleset = @(
+@{IpRule = "10.0.3.0/20"; RuleDesc = "This is updated Rule 1"},
+@{IpRule = "10.0.4.0/20"; RuleDesc = "This is updated Rule 2"}
+Update-WKSRulesOfIpGroup -GroupId wsipg-abcde4wer -UserRule $ruleset</code>
+    <description>This sample updates an existing IP Group with two new IP Rules</description>
+  </example>
+</examples>
