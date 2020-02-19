@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!--Examples for the AWS PowerShell CmdLets-->
+<examples>
+  <example>
+    <code>Revoke-WKSIpRule -GroupId wsipg-fjesa1fab -UserRule '10.0.3.0/20'</code>
+    <description>This sample removes a particular IP Rule from an IP Access Control Group</description>
+  </example>
+</examples>
