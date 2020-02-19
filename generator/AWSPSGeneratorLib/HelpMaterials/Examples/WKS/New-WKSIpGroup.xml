@@ -6,4 +6,9 @@
 wsipg-w45rty4ty</code>
     <description>This sample creates an empty Ip group named FreshEmptyIpGroup</description>
   </example>
+  <example>
+    <code>New-WKSIpGroup -GroupName 'CreatedIpGroup'
+wsipg-8e2adherf</code>
+    <description>This sample creates an empty IP Group</description>
+  </example>
 </examples>
