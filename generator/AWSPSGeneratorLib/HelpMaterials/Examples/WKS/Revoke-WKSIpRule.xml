@@ -5,4 +5,8 @@
     <code>Revoke-WKSIpRule -GroupId wsipg-fjesa1fab -UserRule '10.0.3.0/20'</code>
     <description>This sample removes a particular IP Rule from an IP Access Control Group</description>
   </example>
+  <example>
+    <code>Revoke-WKSIpRule -GroupId wsipg-8r11ab123 -UserRule ("20.0.0.0/0")</code>
+    <description>This sample removes an IP rule from the provided IP Group</description>
+  </example>
 </examples>
